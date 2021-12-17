@@ -1,25 +1,29 @@
 <template>
   <div class="game-container">
     <div class="answer">
-      <div class="count-down">
-        
-      </div>
+      <Countdown ref="countdown" mode="clock" :total="30" @timeout="handleTimeout" />
       <div class="answer-show">
         <p>已回答: {{ answeredNum }}个，答对: {{ correctNum }}个， 答错: {{ incorrectNum }}个，跳过: {{ passNum }}个</p>
       </div>
       <div class="word-container">
         <div class="card">{{ cardWord }}</div>
-        <div class="operate-btn">
-          <el-button type="success" size="medium" @click="handleCorrectAnswer">正确</el-button>
-          <el-button type="danger" size="medium" @click="handleIncorrectAnswer">错误</el-button>
-          <el-button type="warning" size="medium" @click="handlePass">跳过</el-button>
-        </div>
         <div class="page-btn">
-          <el-button type="primary" @click="handlePrevPage">上一个</el-button>
+          <el-button-group>
+            <el-button type="primary" icon="el-icon-arrow-left" @click="handlePrevPage">上一页</el-button>
+            <el-button type="primary" @click="handleNextPage">下一页<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+          </el-button-group>
           <span class="page-info">第{{ showCurIndex }}个 / 共{{ total }}个</span>
-          <el-button type="primary" @click="handleNextPage">下一个</el-button>
+          <!-- <el-button circle icon="el-icon-arrow-left" @click="handlePrevPage"></el-button> -->
+          <!-- <el-button circle icon="el-icon-arrow-right" @click="handleNextPage"></el-button> -->
+        </div>
+        <div class="operate-btn">
+          <el-button type="success" size="medium" :disabled="isPause" @click="handleCorrectAnswer">正确</el-button>
+          <el-button type="danger" size="medium" :disabled="isPause" @click="handleIncorrectAnswer">错误</el-button>
+          <el-button type="warning" size="medium" :disabled="isPause" @click="handlePass">跳过</el-button>
+          <el-button type="warning" size="medium" @click="handlePause">{{ isPause ? '继续' : '暂停' }}</el-button>
         </div>
         <div class="result-btn">
+          <el-button @click="handleStart">开始答题</el-button>
           <el-button @click="handleFinish">结束答题</el-button>
           <el-button @click="handleCheckDetail">查看答题明细</el-button>
         </div>
@@ -42,7 +46,7 @@
       </div>
       <div class="pass-list">
         <p>您跳过的题有：</p>
-        <div><el-tag class="word-tag" v-for="pass in passList" :key="correct">{{ pass }}</el-tag></div>
+        <div><el-tag class="word-tag" v-for="pass in passList" :key="pass">{{ pass }}</el-tag></div>
       </div>
     </el-dialog>
   </div>
@@ -50,8 +54,16 @@
 
 <script>
 import mock from './mock.js'
+import Countdown from '@/components/Countdown'
 
 export default {
+  components: { Countdown },
+  props: {
+    passLimit: {
+      type: Number,
+      default: 5
+    }
+  },
   data() {
     this.cardWordList = mock;
     return {
@@ -62,7 +74,8 @@ export default {
       correctList: [],
       incorrectList: [],
       passList: [],
-      detailVisible: false
+      detailVisible: false,
+      isPause: false,
     }
   },
   computed: {
@@ -111,11 +124,26 @@ export default {
       this.passNum++;
       this.handleNextPage();
     },
+    handleStart() {
+      this.isPause = false;
+      this.$refs.countdown?.handleStart();
+    },
+    handlePause() {
+      this.isPause = !this.isPause;
+      if(this.isPause) {
+        this.$refs.countdown.handlePause();
+      } else {
+        this.$refs.countdown.handleContinue();
+      }
+    },
     handleFinish() {
 
     },
     handleCheckDetail() {
       this.detailVisible = true;
+    },
+    handleTimeout() {
+      this.$message.error('计时结束')
     }
   }
 }
@@ -137,10 +165,10 @@ export default {
         overflow: visible;
       }
       .operate-btn {
-        margin-top: 10px;
+        margin-top: 20px;
       }
       .page-btn {
-        margin-top: 20px;
+        margin-top: 5px;
         .page-info {
           margin: 0 20px;
         }
