@@ -1,7 +1,7 @@
 <template>
   <div class="game-container">
     <div class="answer">
-      <Countdown ref="countdown" mode="clock" :total="30" @timeout="handleTimeout" />
+      <Countdown ref="countdown" :key="countdownKey" mode="s" :total="300" @timeout="handleTimeout" />
       <div class="answer-show">
         <p>已回答: {{ answeredNum }}个，答对: {{ correctNum }}个， 答错: {{ incorrectNum }}个，跳过: {{ passNum }}个</p>
       </div>
@@ -19,13 +19,14 @@
         <div class="operate-btn">
           <el-button type="success" size="medium" :disabled="isPause" @click="handleCorrectAnswer">正确</el-button>
           <el-button type="danger" size="medium" :disabled="isPause" @click="handleIncorrectAnswer">错误</el-button>
-          <el-button type="warning" size="medium" :disabled="isPause" @click="handlePass">跳过</el-button>
+          <el-button type="warning" size="medium" :disabled="isPause || passNum >= passLimit" @click="handlePass">跳过</el-button>
           <el-button type="warning" size="medium" @click="handlePause">{{ isPause ? '继续' : '暂停' }}</el-button>
         </div>
         <div class="result-btn">
           <el-button @click="handleStart">开始答题</el-button>
           <el-button @click="handleFinish">结束答题</el-button>
           <el-button @click="handleCheckDetail">查看答题明细</el-button>
+          <el-button @click="handleReset">清除数据</el-button>
         </div>
       </div>
     </div>
@@ -68,19 +69,26 @@ export default {
     this.cardWordList = mock;
     return {
       curIndex: 0,
-      correctNum: 0,
-      incorrectNum: 0,
-      passNum: 0,
       correctList: [],
       incorrectList: [],
       passList: [],
       detailVisible: false,
       isPause: false,
+      countdownKey: new Date().getTime()
     }
   },
   computed: {
     cardWord() {
       return this.cardWordList[this.curIndex];
+    },
+    correctNum() {
+      return this.correctList.length;
+    },
+    incorrectNum() {
+      return this.incorrectList.length;
+    },
+    passNum() {
+      return this.passList.length;
     },
     total() {
       return this.cardWordList.length;
@@ -90,6 +98,13 @@ export default {
     },
     answeredNum() {
       return this.incorrectNum + this.correctNum + this.passNum;
+    }
+  },
+  watch: {
+    passNum(val) {
+      if(this.passLimit === val) {
+        this.$notify.warning(`您共有${val}次跳过机会，这已经是第${val}次了！`);
+      }
     }
   },
   methods: {
@@ -111,17 +126,14 @@ export default {
     },
     handleCorrectAnswer() {
       this.correctList.push(this.cardWordList[this.curIndex]);
-      this.correctNum++;
       this.handleNextPage();
     },
     handleIncorrectAnswer() {
       this.incorrectList.push(this.cardWordList[this.curIndex]);
-      this.incorrectNum++;
       this.handleNextPage();
     },
     handlePass() {
       this.passList.push(this.cardWordList[this.curIndex]);
-      this.passNum++;
       this.handleNextPage();
     },
     handleStart() {
@@ -137,10 +149,16 @@ export default {
       }
     },
     handleFinish() {
-
+      this.$refs.countdown.handlePause();
     },
     handleCheckDetail() {
       this.detailVisible = true;
+    },
+    handleReset() {
+      this.correctList = [];
+      this.incorrectList = [];
+      this.passList = [];
+      this.countdownKey = new Date().getTime();
     },
     handleTimeout() {
       this.$message.error('计时结束')
@@ -172,6 +190,9 @@ export default {
         .page-info {
           margin: 0 20px;
         }
+      }
+      .result-btn {
+        margin-top: 20px;
       }
     }
     ::v-deep .el-dialog__wrapper {
