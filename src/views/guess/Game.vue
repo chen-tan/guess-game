@@ -1,7 +1,7 @@
 <template>
   <div class="game-container">
     <div class="answer">
-      <Countdown ref="countdown" :key="countdownKey" mode="s" :total="300" @timeout="handleTimeout" />
+      <Countdown ref="countdown" mode="s" :total="countdownTotal" @timeout="handleTimeout" />
       <div class="answer-show">
         <p>已回答: {{ answeredNum }}个，答对: {{ correctNum }}个， 答错: {{ incorrectNum }}个，跳过: {{ passNum }}个</p>
       </div>
@@ -17,9 +17,9 @@
           <!-- <el-button circle icon="el-icon-arrow-right" @click="handleNextPage"></el-button> -->
         </div>
         <div class="operate-btn">
-          <el-button type="success" size="medium" :disabled="isPause" @click="handleCorrectAnswer">正确</el-button>
-          <el-button type="danger" size="medium" :disabled="isPause" @click="handleIncorrectAnswer">错误</el-button>
-          <el-button type="warning" size="medium" :disabled="isPause || passNum >= passLimit" @click="handlePass">跳过</el-button>
+          <el-button type="success" size="medium" :disabled="!isStart || isPause" @click="handleCorrectAnswer">正确</el-button>
+          <el-button type="danger" size="medium" :disabled="!isStart || isPause" @click="handleIncorrectAnswer">错误</el-button>
+          <el-button type="warning" size="medium" :disabled="!isStart || isPause || passNum >= passLimit" @click="handlePass">跳过</el-button>
           <el-button type="warning" size="medium" @click="handlePause">{{ isPause ? '继续' : '暂停' }}</el-button>
         </div>
         <div class="result-btn">
@@ -63,6 +63,14 @@ export default {
     passLimit: {
       type: Number,
       default: 5
+    },
+    countdownLimit: {
+      type: Number,
+      default: 300
+    },
+    timingMode: {
+      type: Object,
+      default: ['倒计时']
     }
   },
   data() {
@@ -73,7 +81,9 @@ export default {
       incorrectList: [],
       passList: [],
       detailVisible: false,
+      isStart: false,
       isPause: false,
+      countdownTotal: 0,
       countdownKey: new Date().getTime()
     }
   },
@@ -103,9 +113,18 @@ export default {
   watch: {
     passNum(val) {
       if(this.passLimit === val) {
-        this.$notify.warning(`您共有${val}次跳过机会，这已经是第${val}次了！`);
+        this.$notify.warning({ message: `您共有${val}次跳过机会，这已经是第${val}次了！`, duration: 3000 });
       }
+    },
+    countdownLimit: {
+      handler(val) {
+        this.countdownTotal = val;
+      },
+      immediate: true
     }
+  },
+  created() {
+
   },
   methods: {
     handlePrevPage() {
@@ -137,6 +156,8 @@ export default {
       this.handleNextPage();
     },
     handleStart() {
+      this.handleReset();
+      this.isStart = true;
       this.isPause = false;
       this.$refs.countdown?.handleStart();
     },
@@ -149,6 +170,7 @@ export default {
       }
     },
     handleFinish() {
+      this.isStart = false;
       this.$refs.countdown.handlePause();
     },
     handleCheckDetail() {
@@ -158,7 +180,7 @@ export default {
       this.correctList = [];
       this.incorrectList = [];
       this.passList = [];
-      this.countdownKey = new Date().getTime();
+      this.$refs.countdown.handleInit();
     },
     handleTimeout() {
       this.$message.error('计时结束')

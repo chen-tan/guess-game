@@ -12,7 +12,7 @@ export default {
   props: {
     total: {
       type: Number,
-      default: 5*60
+      default: 200
     },
     mode: {
       type: String,
@@ -27,6 +27,12 @@ export default {
     }
   },
   watch: {
+    total: {
+      handler(val) {
+        this.handleInit();
+      },
+      immediate: true
+    },
     surplus(val) {
       if (this.mode === 'clock') {
         this.clock = this.parseTime(val);
@@ -36,14 +42,9 @@ export default {
       }
     }
   },
-  created() {
-    this.surplus = this.total;
-    this.clock = this.parseTime(this.surplus);
-    
-  },
   methods: {
     handleStart() {
-      this.surplus = this.total;
+      this.handleInit();
       this.setTimer();
     },
     handlePause() {
@@ -51,7 +52,11 @@ export default {
       this.timer = null;
     },
     handleContinue() {
-      this.setTimer();  
+      this.setTimer();
+    },
+    handleInit() {
+      this.surplus = this.total;
+      this.clock = this.parseTime(this.surplus);
     },
     setTimer() {
       clearInterval(this.timer);

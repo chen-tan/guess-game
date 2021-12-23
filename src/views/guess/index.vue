@@ -1,7 +1,7 @@
 <template>
   <div class="guess-game-container">
-    <BasicInfo />
-    <Game />
+    <BasicInfo @basic-setting="setBasic" />
+    <Game v-if="JSON.stringify(basicObj) !== '{}'" v-bind="basicObj" />
   </div>
 </template>
 
@@ -12,6 +12,16 @@ import Game from './Game'
 
 export default {
   components: { BasicInfo, Game },
+  data() {
+    return {
+      basicObj: {}
+    }
+  },
+  methods: {
+    setBasic(basicObj) {
+      this.basicObj = {...basicObj};
+    }
+  }
 }
 </script>
 
