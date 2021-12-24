@@ -1,7 +1,12 @@
 <template>
   <div class="game-container">
     <div class="answer">
-      <Countdown ref="countdown" mode="s" :total="countdownTotal" @timeout="handleTimeout" />
+      <div class="game-state">
+        <span v-if="isPause" class="state-text">暂停中。。。。。。</span>
+        <span v-else-if="isStart" class="state-text">答题中。。。。。。</span>        
+        <span v-else class="state-text">等待开始。。。。。。</span>
+      </div>
+      <Countdown v-if="timingMode.includes('倒计时')" ref="countdown" mode="s" :total="countdownTotal" @timeout="handleTimeout" />
       <div class="answer-show">
         <p>已回答: {{ answeredNum }}个，答对: {{ correctNum }}个， 答错: {{ incorrectNum }}个，跳过: {{ passNum }}个</p>
       </div>
@@ -12,7 +17,7 @@
             <el-button type="primary" icon="el-icon-arrow-left" @click="handlePrevPage">上一页</el-button>
             <el-button type="primary" @click="handleNextPage">下一页<i class="el-icon-arrow-right el-icon--right"></i></el-button>
           </el-button-group>
-          <span class="page-info">第{{ showCurIndex }}个 / 共{{ total }}个</span>
+          <span class="page-info">第{{ showCurIndex }}个 / 共{{ wordTotal }}个</span>
           <!-- <el-button circle icon="el-icon-arrow-left" @click="handlePrevPage"></el-button> -->
           <!-- <el-button circle icon="el-icon-arrow-right" @click="handleNextPage"></el-button> -->
         </div>
@@ -69,12 +74,21 @@ export default {
       default: 300
     },
     timingMode: {
-      type: Object,
-      default: ['倒计时']
+      type: Array,
+      default: ['计时','倒计时']
     }
   },
   data() {
     this.cardWordList = mock;
+    this.stateOptions = [
+      { state: 'isStart', icon: 'el-icon-loading', text: '答题中' },
+      { state: 'isPause', icon: 'el-icon-more', text: '暂停中' },
+      { state: 'isWait', icon: 'wait', text: '等待中' },
+    ]
+      new Map([
+      ['isStart', 'el-icon-loading'],
+      ['isPause', 'el-icon-more']
+    ])
     return {
       curIndex: 0,
       correctList: [],
@@ -84,6 +98,7 @@ export default {
       isStart: false,
       isPause: false,
       countdownTotal: 0,
+      stateIcon: '',
       countdownKey: new Date().getTime()
     }
   },
@@ -100,7 +115,7 @@ export default {
     passNum() {
       return this.passList.length;
     },
-    total() {
+    wordTotal() {
       return this.cardWordList.length;
     },
     showCurIndex() {
@@ -192,6 +207,19 @@ export default {
 <style lang="scss" scoped>
   .game-container {
     padding-left: 20px;
+    ::v-deep .countdown{
+      text-align: left;
+      color: #2c73b9;
+    }
+    .answer-show {
+      text-align: left;
+    }
+    .game-state {
+      margin-bottom: 20px;
+      .state-text {
+        font-size: 24px;
+      }
+    }
     .word-container {
       .card {
         display: flex;

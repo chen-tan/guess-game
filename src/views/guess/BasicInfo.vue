@@ -12,6 +12,7 @@
           <el-checkbox label="倒计时"></el-checkbox>
         </el-checkbox-group>
       </el-form-item>
+      <!-- <el-form-item label="计时"></el-form-item> -->
       <el-form-item label="倒计时(s)：">
         <el-select v-model="form.countdownLimit" :disabled="!form.timingMode.includes('倒计时')" allow-create>
           <el-option v-for="item in countdownOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
