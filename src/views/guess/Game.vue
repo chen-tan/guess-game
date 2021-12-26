@@ -25,7 +25,7 @@
           <el-button type="success" size="medium" :disabled="!isStart || isPause" @click="handleCorrectAnswer">正确</el-button>
           <el-button type="danger" size="medium" :disabled="!isStart || isPause" @click="handleIncorrectAnswer">错误</el-button>
           <el-button type="warning" size="medium" :disabled="!isStart || isPause || passNum >= passLimit" @click="handlePass">跳过</el-button>
-          <el-button type="warning" size="medium" @click="handlePause">{{ isPause ? '继续' : '暂停' }}</el-button>
+          <el-button type="warning" size="medium" :disabled="!isStart" @click="handlePause">{{ isPause ? '继续' : '暂停' }}</el-button>
         </div>
         <div class="result-btn">
           <el-button @click="handleStart">开始答题</el-button>

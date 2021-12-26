@@ -19,7 +19,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="最大跳过次数：">
-        <el-input v-model="form.passLimit"></el-input>
+        <el-input v-model.number="form.passLimit"></el-input>
       </el-form-item>
       <el-form-item class="confirm-btn">
         <el-button @click="handleReset">重置</el-button>
@@ -60,7 +60,12 @@ export default {
       this.$emit('basic-setting', this.form);
     },
     handleReset() {
-      this.$refs.form.resetField();
+      this.form = {
+        countdownLimit: 180,
+        wordSum: 50,
+        timingMode: ['倒计时'],
+        passLimit: 3
+      }
     }
   }
 }
