@@ -14,8 +14,8 @@
         <div class="card">{{ cardWord }}</div>
         <div class="page-btn">
           <el-button-group>
-            <el-button type="primary" icon="el-icon-arrow-left" @click="handlePrevPage">上一页</el-button>
-            <el-button type="primary" @click="handleNextPage">下一页<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+            <el-button type="primary" :disabled="curIndex === 0" icon="el-icon-arrow-left" @click="handlePrevPage">上一页</el-button>
+            <el-button type="primary" :disabled="curIndex === cardWordList.length - 1" @click="handleNextPage">下一页<i class="el-icon-arrow-right el-icon--right"></i></el-button>
           </el-button-group>
           <span class="page-info">第{{ showCurIndex }}个 / 共{{ wordTotal }}个</span>
           <!-- <el-button circle icon="el-icon-arrow-left" @click="handlePrevPage"></el-button> -->
@@ -60,6 +60,7 @@
 
 <script>
 import mock from './mock.js'
+import data from './data.js'
 import Countdown from '@/components/Countdown'
 
 export default {
@@ -76,10 +77,14 @@ export default {
     timingMode: {
       type: Array,
       default: ['计时','倒计时']
+    },
+    wordSum: {
+      type: Number,
+      default: 100
     }
   },
   data() {
-    this.cardWordList = mock;
+    this.cardWordList = data;
     this.stateOptions = [
       { state: 'isStart', icon: 'el-icon-loading', text: '答题中' },
       { state: 'isPause', icon: 'el-icon-more', text: '暂停中' },
