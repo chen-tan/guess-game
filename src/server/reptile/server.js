@@ -22,7 +22,7 @@ function start() {
       let count = 0;
       
       function getEachBook(url, callback) {
-        const delay = Math.ceil(Math.random() * 2000 + 1000);
+        const delay = Math.ceil(Math.random() * 5000 + 5000);
         count++;
         console.log(`现在的并发数是${count},正在抓取的是${url},延时是${delay}毫秒`);
         superagent(url).end((err, resp) => {
