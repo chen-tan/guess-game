@@ -2,16 +2,17 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import guessRoutes from './guess'
 import countdownRoutes from './countdown.js'
-
+import practice from './practice.js'
 Vue.use(Router);
 
 const routes = [
   {
     path: '/',
-    redirect: '/guess'
+    redirect: '/practice'
   },
   guessRoutes,
-  countdownRoutes
+  countdownRoutes,
+  practice
 ]
 
 
