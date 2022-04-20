@@ -1,16 +1,41 @@
-
+const delay = duration => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, duration)
+  })
+}
 const state = {
-  a: 1
+  count: 5
+}
+
+const getters = {
+  aa: state => state.count * 2
 }
 
 const mutations = {
-  CHANGE: state => {
-    state.a++
+  CHANGE: (state, type) => {
+    setTimeout(() => {
+      type === 'add' ? state.count++ : state.count--
+
+    })
+  },
+  MULTI: (state, times) => {
+    state.count = state.count * times
+  }
+}
+
+const actions = {
+  asyncChange: async (context, payload) => {
+    await delay(2000)
+    context.commit('MULTI', payload)
   }
 }
 
 export default {
   namespaced: true,
   state,
-  mutations
+  getters,
+  mutations,
+  actions
 }
